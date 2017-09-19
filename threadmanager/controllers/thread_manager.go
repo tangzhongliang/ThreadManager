@@ -194,10 +194,16 @@ func (this *ThreadWorker) start() error {
 	return nil
 }
 
-func (this *ThreadManager) CreateThreadMessage(workerType, key string, value interface{}) *ThreadMessage {
-	threadWorker, _ := this.threadWorkers[workerType]
-	return &ThreadMessage{WorkerType: workerType, ValueSyncKey: key,
-		Value: value, DoInBackground: threadWorker.DoInBackground}
+func (this *ThreadManager) CreateThreadMessage(workerType, key string, value interface{}, doin func(workerType string, v interface{}) interface{}) *ThreadMessage {
+	if doin == nil {
+		threadWorker, _ := this.threadWorkers[workerType]
+		return &ThreadMessage{WorkerType: workerType, ValueSyncKey: key,
+			Value: value, DoInBackground: threadWorker.DoInBackground}
+	} else {
+		return &ThreadMessage{WorkerType: workerType, ValueSyncKey: key,
+			Value: value, DoInBackground: doin}
+	}
+
 }
 func (this *ThreadManager) ExecuteMessage(msg *ThreadMessage) {
 	//todo add random
